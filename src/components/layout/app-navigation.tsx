@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { Boxes, LayoutDashboard } from "lucide-react";
+import { Boxes, LayoutDashboard, Tags } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 type AppNavigationProps = {
@@ -7,6 +10,22 @@ type AppNavigationProps = {
 };
 
 export function AppNavigation({ compact = false }: AppNavigationProps) {
+  const pathname = usePathname();
+  const navigationItems = [
+    {
+      href: "/",
+      icon: LayoutDashboard,
+      isActive: pathname === "/",
+      label: "Inicio",
+    },
+    {
+      href: "/categories",
+      icon: Tags,
+      isActive: pathname?.startsWith("/categories") ?? false,
+      label: "Categorías",
+    },
+  ];
+
   return (
     <div className="flex h-full flex-col">
       <Link
@@ -19,18 +38,24 @@ export function AppNavigation({ compact = false }: AppNavigationProps) {
         <span>StockFlow</span>
       </Link>
 
-      <nav aria-label="Navegación principal" className="mt-8">
-        <Link
-          aria-current="page"
-          className={cn(
-            "flex items-center gap-3 rounded-lg bg-sidebar-accent px-3 py-2 text-sm font-medium text-sidebar-accent-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
-          )}
-          href="/"
-        >
-          <LayoutDashboard aria-hidden="true" className="size-4" />
-          Inicio
-        </Link>
+      <nav aria-label="Navegación principal" className="mt-8 space-y-1">
+        {navigationItems.map(({ href, icon: Icon, isActive, label }) => (
+          <Link
+            aria-current={isActive ? "page" : undefined}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+              isActive
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+            )}
+            href={href}
+            key={href}
+          >
+            <Icon aria-hidden="true" className="size-4" />
+            {label}
+          </Link>
+        ))}
       </nav>
 
       {!compact && (
