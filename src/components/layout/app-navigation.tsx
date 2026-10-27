@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Boxes, LayoutDashboard, Tags } from "lucide-react";
+import { Boxes, LayoutDashboard, Package, Tags } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,12 @@ export function AppNavigation({ compact = false }: AppNavigationProps) {
       icon: Tags,
       isActive: pathname?.startsWith("/categories") ?? false,
       label: "Categorías",
+    },
+    {
+      href: "/products",
+      icon: Package,
+      isActive: pathname?.startsWith("/products") ?? false,
+      label: "Productos",
     },
   ];
 

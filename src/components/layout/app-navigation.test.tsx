@@ -41,6 +41,20 @@ describe("AppNavigation", () => {
     );
   });
 
+  it("marks the products link as the current page", () => {
+    mockUsePathname.mockReturnValue("/products");
+
+    render(<AppNavigation />);
+
+    expect(screen.getByRole("link", { name: "Productos" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Inicio" })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
   it("hides the extended message in compact navigation", () => {
     render(<AppNavigation compact />);
 
