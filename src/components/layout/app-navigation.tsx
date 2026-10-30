@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Boxes, LayoutDashboard, Package, Tags } from "lucide-react";
+import {
+  ArrowRightLeft,
+  Boxes,
+  LayoutDashboard,
+  Package,
+  Tags,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +41,12 @@ export function AppNavigation({ compact = false }: AppNavigationProps) {
       icon: Boxes,
       isActive: pathname?.startsWith("/inventory") ?? false,
       label: "Inventario",
+    },
+    {
+      href: "/stock-movements",
+      icon: ArrowRightLeft,
+      isActive: pathname?.startsWith("/stock-movements") ?? false,
+      label: "Movimientos",
     },
   ];
 

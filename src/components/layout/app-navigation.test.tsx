@@ -69,6 +69,20 @@ describe("AppNavigation", () => {
     );
   });
 
+  it("marks the stock movements link as the current page", () => {
+    mockUsePathname.mockReturnValue("/stock-movements");
+
+    render(<AppNavigation />);
+
+    expect(screen.getByRole("link", { name: "Movimientos" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Inicio" })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
   it("hides the extended message in compact navigation", () => {
     render(<AppNavigation compact />);
 
