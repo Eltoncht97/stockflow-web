@@ -55,6 +55,20 @@ describe("AppNavigation", () => {
     );
   });
 
+  it("marks the inventory link as the current page", () => {
+    mockUsePathname.mockReturnValue("/inventory");
+
+    render(<AppNavigation />);
+
+    expect(screen.getByRole("link", { name: "Inventario" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Inicio" })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
   it("hides the extended message in compact navigation", () => {
     render(<AppNavigation compact />);
 

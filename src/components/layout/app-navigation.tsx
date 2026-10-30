@@ -30,6 +30,12 @@ export function AppNavigation({ compact = false }: AppNavigationProps) {
       isActive: pathname?.startsWith("/products") ?? false,
       label: "Productos",
     },
+    {
+      href: "/inventory",
+      icon: Boxes,
+      isActive: pathname?.startsWith("/inventory") ?? false,
+      label: "Inventario",
+    },
   ];
 
   return (
