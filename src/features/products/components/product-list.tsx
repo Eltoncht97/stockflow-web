@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { Product } from "../types/product";
 
 type ProductListProps = {
+  isEditDisabled?: boolean;
   products: Product[];
   onEdit: (product: Product) => void;
   onStatusChange: (product: Product) => void;
@@ -63,10 +64,12 @@ function ActiveBadge({ isActive }: { isActive: boolean }) {
 }
 
 function ProductActions({
+  isEditDisabled,
   product,
   onEdit,
   onStatusChange,
 }: {
+  isEditDisabled: boolean;
   product: Product;
   onEdit: (product: Product) => void;
   onStatusChange: (product: Product) => void;
@@ -77,6 +80,7 @@ function ProductActions({
     <div className="flex flex-wrap gap-2">
       <Button
         aria-label={`Editar ${product.name}`}
+        disabled={isEditDisabled}
         onClick={() => onEdit(product)}
         size="sm"
         type="button"
@@ -104,6 +108,7 @@ function ProductActions({
 }
 
 export function ProductList({
+  isEditDisabled = false,
   products,
   onEdit,
   onStatusChange,
@@ -148,6 +153,7 @@ export function ProductList({
             </div>
             <div className="mt-4">
               <ProductActions
+                isEditDisabled={isEditDisabled}
                 onEdit={onEdit}
                 onStatusChange={onStatusChange}
                 product={product}
@@ -198,6 +204,7 @@ export function ProductList({
                 <td className="px-4 py-4">
                   <div className="flex justify-end">
                     <ProductActions
+                      isEditDisabled={isEditDisabled}
                       onEdit={onEdit}
                       onStatusChange={onStatusChange}
                       product={product}

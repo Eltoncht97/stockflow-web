@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { inventoryKeys } from "@/features/inventory/inventory-api";
+import { productKeys } from "@/features/products/api/products-api";
 import {
   categoryKeys,
   createCategory,
@@ -42,7 +44,18 @@ export function CategoriesPage() {
         ? updateCategory(category.id, values)
         : createCategory(values),
     onSuccess: async (_category, variables) => {
-      await queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+      const invalidations = [
+        queryClient.invalidateQueries({ queryKey: categoryKeys.all }),
+      ];
+
+      if (variables.category) {
+        invalidations.push(
+          queryClient.invalidateQueries({ queryKey: productKeys.all }),
+          queryClient.invalidateQueries({ queryKey: inventoryKeys.list }),
+        );
+      }
+
+      await Promise.all(invalidations);
       toast.success(
         variables.category
           ? "Categoría actualizada correctamente."

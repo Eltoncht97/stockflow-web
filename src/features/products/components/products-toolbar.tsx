@@ -5,6 +5,7 @@ export type ProductStatusFilter = "all" | "active" | "inactive";
 
 type ProductsToolbarProps = {
   categories: Category[];
+  categoryFilterDisabled?: boolean;
   categoryId: string;
   onCategoryChange: (categoryId: string) => void;
   onSearchChange: (search: string) => void;
@@ -18,6 +19,7 @@ const fieldClassName =
 
 export function ProductsToolbar({
   categories,
+  categoryFilterDisabled = false,
   categoryId,
   onCategoryChange,
   onSearchChange,
@@ -53,6 +55,7 @@ export function ProductsToolbar({
         </label>
         <select
           className={fieldClassName}
+          disabled={categoryFilterDisabled}
           id="product-category-filter"
           onChange={(event) => onCategoryChange(event.target.value)}
           value={categoryId}

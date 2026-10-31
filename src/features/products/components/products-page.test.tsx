@@ -76,6 +76,50 @@ describe("ProductsPage", () => {
     expect(screen.getAllByText("Stock normal")).toHaveLength(2);
   });
 
+  it("keeps products usable while categories are loading", async () => {
+    mocks.listCategories.mockReturnValueOnce(new Promise(() => undefined));
+    renderPage();
+
+    expect(await screen.findAllByText("Teclado")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Nuevo producto" })).toBeDisabled();
+    expect(
+      screen.getByRole("combobox", { name: "Filtrar por categoría" }),
+    ).toBeDisabled();
+  });
+
+  it("keeps products usable when categories fail", async () => {
+    const user = userEvent.setup();
+    mocks.listCategories.mockRejectedValue(new Error("Categories unavailable"));
+    renderPage();
+
+    expect(await screen.findAllByText("Teclado")).toHaveLength(2);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "No se pudieron cargar las categorías",
+    );
+    expect(screen.getByRole("button", { name: "Nuevo producto" })).toBeDisabled();
+    expect(
+      screen.getAllByRole("button", { name: "Editar Teclado" })[0],
+    ).toBeDisabled();
+    expect(
+      screen.getAllByRole("button", { name: "Desactivar Teclado" })[0],
+    ).toBeEnabled();
+
+    mocks.listCategories.mockResolvedValueOnce(categories);
+    await user.click(
+      screen.getByRole("button", { name: "Reintentar categorías" }),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("combobox", { name: "Filtrar por categoría" }),
+      ).toBeEnabled(),
+    );
+    expect(screen.getByRole("button", { name: "Nuevo producto" })).toBeEnabled();
+    expect(
+      screen.getAllByRole("button", { name: "Editar Teclado" })[0],
+    ).toBeEnabled();
+  });
+
   it("shows a distinct empty state", async () => {
     mocks.listProducts.mockResolvedValue([]);
     renderPage();
@@ -274,7 +318,7 @@ describe("ProductsPage", () => {
     expect(screen.getByText(/servidor no pudo completar/i)).toBeInTheDocument();
   });
 
-  it("retries both product and category queries after a load error", async () => {
+  it("retries the failed product query without refetching categories", async () => {
     const user = userEvent.setup();
     mocks.listProducts
       .mockRejectedValueOnce(new ApiClientError("Technical", 500))
@@ -288,6 +332,6 @@ describe("ProductsPage", () => {
 
     expect(await screen.findAllByText("Teclado")).toHaveLength(2);
     expect(mocks.listProducts).toHaveBeenCalledTimes(2);
-    expect(mocks.listCategories).toHaveBeenCalledTimes(2);
+    expect(mocks.listCategories).toHaveBeenCalledTimes(1);
   });
 });

@@ -49,8 +49,7 @@ export function ProductsPage() {
   const saveError = saveMutation.error ? getProductErrorMessage(saveMutation.error, formOperation) : undefined;
   const statusError = statusMutation.error ? getProductErrorMessage(statusMutation.error, "status") : undefined;
   const isDuplicateSku = saveMutation.error instanceof ApiClientError && saveMutation.error.status === 409;
-  const isLoading = productsQuery.isPending || categoriesQuery.isPending;
-  const loadError = productsQuery.error ?? categoriesQuery.error;
+  const categoriesUnavailable = categoriesQuery.isPending || categoriesQuery.isError;
 
   const saveProduct = async (values: ProductFormValues) => {
     await saveMutation.mutateAsync({ product: formProduct ?? undefined, input: toProductInput(values) }).then(() => {
@@ -86,20 +85,33 @@ export function ProductsPage() {
       </div>
 
       <div className="mt-6">
-        <ProductsToolbar categories={categories} categoryId={categoryId} onCategoryChange={setCategoryId} onSearchChange={setSearch} onStatusChange={setStatus} search={search} status={status} />
+        <ProductsToolbar categories={categories} categoryFilterDisabled={categoriesUnavailable} categoryId={categoryId} onCategoryChange={setCategoryId} onSearchChange={setSearch} onStatusChange={setStatus} search={search} status={status} />
       </div>
 
+      {categoriesQuery.isPending && !productsQuery.isPending && (
+        <p className="mt-4 text-sm text-muted-foreground" role="status">
+          Cargando categorías. El filtro y la edición estarán disponibles en breve.
+        </p>
+      )}
+      {categoriesQuery.isError && (
+        <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100" role="alert">
+          <p className="font-medium">No se pudieron cargar las categorías</p>
+          <p className="mt-1">Podés consultar los productos, buscar y filtrar por estado.</p>
+          <Button className="mt-3" onClick={() => void categoriesQuery.refetch()} type="button" variant="outline">Reintentar categorías</Button>
+        </div>
+      )}
+
       <div className="mt-4">
-        {isLoading ? (
+        {productsQuery.isPending ? (
           <div aria-busy="true" aria-live="polite" role="status">
             <span className="sr-only">Cargando productos...</span>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">{[0, 1, 2].map((item) => <div className="h-56 animate-pulse rounded-xl border bg-muted" key={item} />)}</div>
           </div>
-        ) : loadError ? (
+        ) : productsQuery.isError ? (
           <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6" role="alert">
             <h2 className="font-semibold">No se pudieron cargar los productos</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{getProductErrorMessage(loadError, "load")}</p>
-            <Button className="mt-4" onClick={() => { void productsQuery.refetch(); void categoriesQuery.refetch(); }} type="button" variant="outline">Intentar nuevamente</Button>
+            <p className="mt-2 text-sm text-muted-foreground">{getProductErrorMessage(productsQuery.error, "load")}</p>
+            <Button className="mt-4" onClick={() => { void productsQuery.refetch(); if (categoriesQuery.isError) void categoriesQuery.refetch(); }} type="button" variant="outline">Intentar nuevamente</Button>
           </div>
         ) : products.length === 0 ? (
           <div className="rounded-xl border border-dashed bg-card p-8 text-center">
@@ -115,7 +127,7 @@ export function ProductsPage() {
         ) : (
           <>
             <p aria-live="polite" className="mb-3 text-sm text-muted-foreground">{filteredProducts.length === 1 ? "1 producto" : `${filteredProducts.length} productos`}</p>
-            <ProductList onEdit={openEditForm} onStatusChange={openStatusDialog} products={filteredProducts} />
+            <ProductList isEditDisabled={categoriesUnavailable} onEdit={openEditForm} onStatusChange={openStatusDialog} products={filteredProducts} />
           </>
         )}
       </div>

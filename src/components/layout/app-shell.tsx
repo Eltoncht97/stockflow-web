@@ -11,6 +11,12 @@ type AppShellProps = {
 export function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-muted/30">
+      <a
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
+        href="#main-content"
+      >
+        Saltar al contenido
+      </a>
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 border-r bg-sidebar p-5 text-sidebar-foreground md:block">
         <AppNavigation />
       </aside>
@@ -28,7 +34,9 @@ export function AppShell({ children }: AppShellProps) {
           <ThemeToggle />
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8" id="main-content" tabIndex={-1}>
+          {children}
+        </main>
       </div>
     </div>
   );

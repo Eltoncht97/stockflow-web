@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiClientError } from "@/lib/api";
+import { inventoryKeys } from "@/features/inventory/inventory-api";
 import type { Category } from "./categories-api";
 import { CategoriesPage } from "./categories-page";
 
@@ -59,11 +60,13 @@ function renderCategoriesPage() {
     },
   });
 
-  return render(
+  const view = render(
     <QueryClientProvider client={queryClient}>
       <CategoriesPage />
     </QueryClientProvider>,
   );
+
+  return { ...view, queryClient };
 }
 
 describe("CategoriesPage", () => {
@@ -145,7 +148,8 @@ describe("CategoriesPage", () => {
         resolveCreate = resolve;
       }),
     );
-    renderCategoriesPage();
+    const { queryClient } = renderCategoriesPage();
+    const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
     await screen.findAllByText("Hardware");
 
     await user.click(screen.getByRole("button", { name: "Nueva categoría" }));
@@ -160,6 +164,15 @@ describe("CategoriesPage", () => {
       expect(mocks.toastSuccess).toHaveBeenCalledWith(
         "Categoría creada correctamente.",
       );
+    });
+    expect(invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: ["products"],
+    });
+    expect(invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: inventoryKeys.all,
+    });
+    expect(invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: inventoryKeys.list,
     });
   });
 
@@ -189,7 +202,8 @@ describe("CategoriesPage", () => {
       ...categories[0],
       name: "Equipos",
     });
-    renderCategoriesPage();
+    const { queryClient } = renderCategoriesPage();
+    const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
     await screen.findAllByText("Hardware");
 
     await user.click(
@@ -208,12 +222,23 @@ describe("CategoriesPage", () => {
     expect(mocks.toastSuccess).toHaveBeenCalledWith(
       "Categoría actualizada correctamente.",
     );
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["products"],
+    });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: inventoryKeys.list,
+    });
+    expect(invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: inventoryKeys.all,
+    });
+    expect(invalidateQueries).toHaveBeenCalledTimes(3);
   });
 
   it("deletes a category after confirmation", async () => {
     const user = userEvent.setup();
     mocks.deleteCategory.mockResolvedValue(undefined);
-    renderCategoriesPage();
+    const { queryClient } = renderCategoriesPage();
+    const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
     await screen.findAllByText("Hardware");
 
     await user.click(
@@ -232,5 +257,14 @@ describe("CategoriesPage", () => {
     expect(mocks.toastSuccess).toHaveBeenCalledWith(
       "Categoría eliminada correctamente.",
     );
+    expect(invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: ["products"],
+    });
+    expect(invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: inventoryKeys.all,
+    });
+    expect(invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: inventoryKeys.list,
+    });
   });
 });

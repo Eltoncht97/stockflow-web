@@ -3,6 +3,7 @@ import type { Category } from "@/features/categories/categories-api";
 
 type InventoryToolbarProps = {
   categories: Category[];
+  categoryFilterDisabled?: boolean;
   categoryId: string;
   lowStockOnly: boolean;
   onCategoryChange: (categoryId: string) => void;
@@ -16,6 +17,7 @@ const fieldClassName =
 
 export function InventoryToolbar({
   categories,
+  categoryFilterDisabled = false,
   categoryId,
   lowStockOnly,
   onCategoryChange,
@@ -51,6 +53,7 @@ export function InventoryToolbar({
         </label>
         <select
           className={fieldClassName}
+          disabled={categoryFilterDisabled}
           id="inventory-category-filter"
           onChange={(event) => onCategoryChange(event.target.value)}
           value={categoryId}

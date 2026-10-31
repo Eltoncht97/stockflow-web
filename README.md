@@ -23,16 +23,22 @@ cp .env.example .env.local
 ```
 
 ```dotenv
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
-Start the development server:
+Start `stockflow-api` on port 3000 from its repository:
 
 ```bash
-pnpm dev
+pnpm start:dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Start the frontend on port 3001:
+
+```bash
+pnpm dev --port 3001
+```
+
+Open [http://localhost:3001](http://localhost:3001).
 
 ## Scripts
 
@@ -59,4 +65,4 @@ pnpm exec playwright install
 - `src/providers`: application-wide providers.
 - `tests/e2e`: important browser workflows.
 
-Authentication and inventory business modules are outside the current foundation scope.
+The app includes dashboard, categories, products, inventory, and stock movement workflows. Authentication remains outside the current scope.

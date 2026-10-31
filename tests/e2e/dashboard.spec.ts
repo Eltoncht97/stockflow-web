@@ -135,6 +135,19 @@ test("uses the navigation drawer with the keyboard on mobile", async ({
   await expect(menuButton).toBeFocused();
 });
 
+test("skips to the main content with the keyboard", async ({ page }) => {
+  await mockDashboardApi(page);
+  await page.goto("/dashboard");
+
+  await page.keyboard.press("Tab");
+  const skipLink = page.getByRole("link", { name: "Saltar al contenido" });
+  await expect(skipLink).toBeFocused();
+  await expect(skipLink).toBeVisible();
+
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("main")).toBeFocused();
+});
+
 test("persists the selected color theme after reload", async ({ page }) => {
   await mockDashboardApi(page);
   await page.emulateMedia({ colorScheme: "light" });

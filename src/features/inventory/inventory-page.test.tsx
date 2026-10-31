@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Category } from "@/features/categories/categories-api";
@@ -113,6 +113,50 @@ describe("InventoryPage", () => {
     expect(screen.getAllByText("Stock bajo")).toHaveLength(2);
     expect(screen.getAllByText("Sin stock")).toHaveLength(2);
     expect(screen.getAllByText("Stock normal")).toHaveLength(2);
+  });
+
+  it("keeps inventory usable while categories are loading", async () => {
+    mocks.listCategories.mockReturnValueOnce(new Promise(() => undefined));
+    renderPage();
+
+    expect(await screen.findAllByText("Teclado")).toHaveLength(2);
+    expect(
+      screen.getByRole("combobox", {
+        name: "Filtrar inventario por categoría",
+      }),
+    ).toBeDisabled();
+    expect(screen.getByRole("searchbox", { name: "Buscar inventario" })).toBeEnabled();
+  });
+
+  it("keeps inventory usable when categories fail", async () => {
+    const user = userEvent.setup();
+    mocks.listCategories.mockRejectedValue(new Error("Categories unavailable"));
+    renderPage();
+
+    expect(await screen.findAllByText("Teclado")).toHaveLength(2);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "No se pudieron cargar las categorías",
+    );
+    expect(screen.queryByText("Categories unavailable")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", {
+        name: "Filtrar inventario por categoría",
+      }),
+    ).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: "Solo stock bajo" })).toBeEnabled();
+
+    mocks.listCategories.mockResolvedValueOnce(categories);
+    await user.click(
+      screen.getByRole("button", { name: "Reintentar categorías" }),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("combobox", {
+          name: "Filtrar inventario por categoría",
+        }),
+      ).toBeEnabled(),
+    );
   });
 
   it("shows the empty inventory state", async () => {

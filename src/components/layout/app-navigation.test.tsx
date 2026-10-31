@@ -92,7 +92,7 @@ describe("AppNavigation", () => {
     render(<AppNavigation compact />);
 
     expect(
-      screen.queryByText("Base del panel preparada para los próximos módulos."),
+      screen.queryByText("Controlá productos, existencias y movimientos desde un solo lugar."),
     ).not.toBeInTheDocument();
   });
 });

@@ -84,7 +84,7 @@ export function AppNavigation({ compact = false }: AppNavigationProps) {
 
       {!compact && (
         <p className="mt-auto px-3 text-xs leading-5 text-muted-foreground">
-          Base del panel preparada para los próximos módulos.
+          Controlá productos, existencias y movimientos desde un solo lugar.
         </p>
       )}
     </div>

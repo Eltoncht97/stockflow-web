@@ -24,7 +24,7 @@ export function InventoryPage() {
   const [categoryId, setCategoryId] = useState("all");
   const [lowStockOnly, setLowStockOnly] = useState(false);
   const inventoryQuery = useQuery({
-    queryKey: inventoryKeys.all,
+    queryKey: inventoryKeys.list,
     queryFn: listInventory,
   });
   const categoriesQuery = useQuery({
@@ -53,8 +53,7 @@ export function InventoryPage() {
     });
   }, [categoryId, inventory, lowStockOnly, search]);
 
-  const isLoading = inventoryQuery.isPending || categoriesQuery.isPending;
-  const loadError = inventoryQuery.error ?? categoriesQuery.error;
+  const categoriesUnavailable = categoriesQuery.isPending || categoriesQuery.isError;
 
   return (
     <section aria-labelledby="inventory-title" className="mx-auto max-w-7xl">
@@ -74,6 +73,7 @@ export function InventoryPage() {
       <div className="mt-6">
         <InventoryToolbar
           categories={categories}
+          categoryFilterDisabled={categoriesUnavailable}
           categoryId={categoryId}
           lowStockOnly={lowStockOnly}
           onCategoryChange={setCategoryId}
@@ -83,8 +83,21 @@ export function InventoryPage() {
         />
       </div>
 
+      {categoriesQuery.isPending && !inventoryQuery.isPending && (
+        <p className="mt-4 text-sm text-muted-foreground" role="status">
+          Cargando categorías. El filtro por categoría estará disponible en breve.
+        </p>
+      )}
+      {categoriesQuery.isError && (
+        <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100" role="alert">
+          <p className="font-medium">No se pudieron cargar las categorías</p>
+          <p className="mt-1">Podés consultar el inventario y usar los demás filtros.</p>
+          <Button className="mt-3" onClick={() => void categoriesQuery.refetch()} type="button" variant="outline">Reintentar categorías</Button>
+        </div>
+      )}
+
       <div className="mt-4">
-        {isLoading ? (
+        {inventoryQuery.isPending ? (
           <div aria-busy="true" aria-live="polite" role="status">
             <span className="sr-only">Cargando inventario...</span>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -96,7 +109,7 @@ export function InventoryPage() {
               ))}
             </div>
           </div>
-        ) : loadError ? (
+        ) : inventoryQuery.isError ? (
           <div
             className="rounded-xl border border-destructive/30 bg-destructive/5 p-6"
             role="alert"
@@ -109,7 +122,6 @@ export function InventoryPage() {
               className="mt-4"
               onClick={() => {
                 void inventoryQuery.refetch();
-                void categoriesQuery.refetch();
               }}
               type="button"
               variant="outline"
