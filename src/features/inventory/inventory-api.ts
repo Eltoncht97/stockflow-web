@@ -15,10 +15,23 @@ export type InventoryItem = {
   status: InventoryStatus;
 };
 
+export type InventorySummary = {
+  totalProducts: number;
+  totalUnits: number;
+  inStockProducts: number;
+  lowStockProducts: number;
+  outOfStockProducts: number;
+};
+
 export const inventoryKeys = {
   all: ["inventory"] as const,
+  summary: ["inventory", "summary"] as const,
 };
 
 export function listInventory() {
   return apiRequest<InventoryItem[]>("inventory");
+}
+
+export function getInventorySummary() {
+  return apiRequest<InventorySummary>("inventory/summary");
 }

@@ -16,6 +16,7 @@ describe("AppNavigation", () => {
   });
 
   it("marks the dashboard link as the current page", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
     render(<AppNavigation />);
 
     expect(
@@ -24,6 +25,10 @@ describe("AppNavigation", () => {
     expect(screen.getByRole("link", { name: "Inicio" })).toHaveAttribute(
       "aria-current",
       "page",
+    );
+    expect(screen.getByRole("link", { name: "Inicio" })).toHaveAttribute(
+      "href",
+      "/dashboard",
     );
   });
 

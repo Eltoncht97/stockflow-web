@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { inventoryKeys } from "@/features/inventory/inventory-api";
 import {
   activateProduct,
   createProduct,
@@ -25,7 +26,10 @@ export function useSaveProductMutation() {
     mutationFn: ({ product, input }: SaveProductVariables) =>
       product ? updateProduct(product.id, input) : createProduct(input),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: productKeys.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: productKeys.all }),
+        queryClient.invalidateQueries({ queryKey: inventoryKeys.all }),
+      ]);
     },
   });
 }
@@ -39,7 +43,10 @@ export function useProductStatusMutation() {
         ? deactivateProduct(product.id)
         : activateProduct(product.id),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: productKeys.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: productKeys.all }),
+        queryClient.invalidateQueries({ queryKey: inventoryKeys.all }),
+      ]);
     },
   });
 }

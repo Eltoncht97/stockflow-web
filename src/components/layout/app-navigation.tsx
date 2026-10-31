@@ -19,9 +19,9 @@ export function AppNavigation({ compact = false }: AppNavigationProps) {
   const pathname = usePathname();
   const navigationItems = [
     {
-      href: "/",
+      href: "/dashboard",
       icon: LayoutDashboard,
-      isActive: pathname === "/",
+      isActive: pathname === "/" || pathname === "/dashboard",
       label: "Inicio",
     },
     {
@@ -54,7 +54,7 @@ export function AppNavigation({ compact = false }: AppNavigationProps) {
     <div className="flex h-full flex-col">
       <Link
         className="flex items-center gap-3 rounded-lg px-2 py-1 text-lg font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        href="/"
+        href="/dashboard"
       >
         <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Boxes aria-hidden="true" className="size-5" />
